@@ -30,8 +30,8 @@ const parser = new Parser();
           const isoDate = item.isoDate;
           const category = rssLink.split('/').pop();
   
-          const sqlInsert = 'INSERT INTO Posts (category, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-          const values = [category, title, link, pubDate, content, contentSnippet, guid, isoDate];
+          const sqlInsert = 'INSERT INTO Posts (idUser, category, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+          const values = [0, category, "img.png", title, link, pubDate, content, contentSnippet, guid, isoDate];
   
           db.query(sqlInsert, values, (error, results) => {
             if (error) {
