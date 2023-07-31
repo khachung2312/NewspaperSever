@@ -69,14 +69,15 @@ VALUES
 
 INSERT INTO Accounts (email, IDUser, password_of_user, status_account)
 VALUES
-('vnexpress@gmail.com', 1, MD5('VNExpress0000'), 'active'),
-  ('linhnm@gmail.com', 2, MD5('123456'), 'active'),
-  ('hungnk@gmail.com', 3, MD5('123456'), 'active'),
-  ('minhvd@gmail.com', 4, MD5('123456'), 'active'),
-  ('duanvd@gmail.com', 5,MD5('123456'), 'active'),
-  ('phuonggt@gmail.com', 6,MD5('123456'), 'active'),
-  ('linhld@gmail.com', 7, MD5('123456'), 'active'),
-  ('hoangdt@gmail.com', 8, MD5('123456'), 'active');
+('vnexpress@gmail.com', (SELECT IDUser FROM Users WHERE email = 'vnexpress@gmail.com'), MD5('VNExpress0000'), 'active'),
+  ('linhnm@gmail.com', (SELECT IDUser FROM Users WHERE email = 'lnm@gmail.com'), MD5('123456'), 'active'),
+  ('hungnk@gmail.com', (SELECT IDUser FROM Users WHERE email = 'hungnk.com'), MD5('123456'), 'active'),
+  ('minhvd@gmail.com', (SELECT IDUser FROM Users WHERE email = 'minhvd.com'), MD5('123456'), 'active'),
+  ('duanvd@gmail.com', (SELECT IDUser FROM Users WHERE email = 'duanvd@gmail.com'), MD5('123456'), 'active'),
+  ('phuonggt@gmail.com', (SELECT IDUser FROM Users WHERE email = 'phuonggt@gmail.com'),MD5('123456'), 'active'),
+  ('linhld@gmail.com', (SELECT IDUser FROM Users WHERE email = 'linhld@gmail.com'), MD5('123456'), 'active'),
+  ('hoangdt@gmail.com', (SELECT IDUser FROM Users WHERE email = 'hoangdt@gmail.com'), MD5('123456'), 'active');
+
 
 SELECT *
 FROM Users
@@ -157,3 +158,35 @@ select * from Category;
 select * from Status;
 
 DELETE FROM Posts WHERE IDPosts > 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO Accounts(email, password_of_user) VALUE ('test1@gmail.com','123456');
+
+
+
+
+Select * from Accounts;
