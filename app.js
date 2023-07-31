@@ -6,46 +6,48 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 
 
-(async () => {
-    const rssLinks = [
-      'https://vnexpress.net/rss/tin-moi-nhat.rss',
-      'https://vnexpress.net/rss/the-thao.rss',
-      'https://vnexpress.net/rss/khoa-hoc.rss',
-      'https://vnexpress.net/rss/giai-tri.rss',
-      'https://vnexpress.net/rss/du-lich.rss',
-    ];
+// (async () => {
+//     const rssLinks = [
+//       'https://vnexpress.net/rss/tin-moi-nhat.rss',
+//       'https://vnexpress.net/rss/the-gioi.rss',
+//       'https://vnexpress.net/rss/the-thao.rss',
+//       'https://vnexpress.net/rss/khoa-hoc.rss',
+//       'https://vnexpress.net/rss/phap-luat.rss',
+//       'https://vnexpress.net/rss/giai-tri.rss',
+//       'https://vnexpress.net/rss/du-lich.rss',
+//     ];
+//     let IDCategory = 1;
+//     for (const rssLink of rssLinks) {
+//       try {
+//         const feed = await parser.parseURL(rssLink);
   
-    
-    for (const rssLink of rssLinks) {
-      try {
-        const feed = await parser.parseURL(rssLink);
+//         for (const item of feed.items) {
+//           const title = item.title;
+//           const link = item.link;
+//           const pubDate = item.pubDate;
+//           const content = item.content;
+//           const contentSnippet = item.contentSnippet;
+//           const guid = item.guid;
+//           const isoDate = item.isoDate;
+      
   
-        for (const item of feed.items) {
-          const title = item.title;
-          const link = item.link;
-          const pubDate = item.pubDate;
-          const content = item.content;
-          const contentSnippet = item.contentSnippet;
-          const guid = item.guid;
-          const isoDate = item.isoDate;
-          const category = rssLink.split('/').pop();
+//           const sqlInsert = 'INSERT INTO Posts(IDUser, IDCategory, IDStatus, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+//           const values = [1,IDCategory, 1,"img.png", title, link, pubDate, content, contentSnippet, guid, isoDate];
   
-          const sqlInsert = 'INSERT INTO Posts (idUser, category, image, title, link, pubDate, content, contentSnippet, guid, isoDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-          const values = [0, category, "img.png", title, link, pubDate, content, contentSnippet, guid, isoDate];
-  
-          db.query(sqlInsert, values, (error, results) => {
-            if (error) {
-              console.error('Lỗi thêm bài viết:', error);
-            } else {
-              console.log('Bài viết đã được thêm thành công');
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Lỗi lấy danh sách item:', error);
-      }
-    }
-  })();
+//           db.query(sqlInsert, values, (error, results) => {
+//             if (error) {
+//               console.error('Lỗi thêm bài viết:', error);
+//             } else {
+//               console.log('Bài viết đã được thêm thành công');
+//             }
+//           });
+//         }
+//         IDCategory++; 
+//       } catch (error) {
+//         console.error('Lỗi lấy danh sách item:', error);
+//       }
+//     }
+//   })();
 
   app.get('/posts', (req, res) => {
     db.query('SELECT * FROM Posts', (error, results) => {
@@ -55,6 +57,32 @@ const parser = new Parser();
       } else {
         res.json(results);
       }
+    });
+  });
+
+  app.get('/cats', (req, res) => {
+    db.query('SELECT * FROM Category', (error, results) => {
+      if (error) {
+        console.error('Lỗi truy vấn:', error);
+        res.status(500).send('Lỗi server');
+      } else {
+        res.json(results);
+      }
+    });
+  });
+
+  app.get('/posts/cat', (req, res) => {
+    const IDCategory = req.query.IDCategory;
+
+    const sqlSearch = `SELECT * FROM Posts WHERE IDCategory LIKE '%${IDCategory}%'`;
+    db.query(sqlSearch, (error, results) => {
+      if (error) {
+        console.error('Lỗi lấy danh sách theo thể loại:', error);
+        res.status(500).json({ error: 'Lỗi lấy danh sách bài viết' });
+        return;
+      }
+      console.log('Kết quả danh sách lấy theo thể loại:', results);
+      res.json(results);
     });
   });
 
