@@ -9,7 +9,7 @@ const multer = require('multer');
 
 
 
-app.get('/posts', (req, res) => {
+app.get('/Posts', (req, res) => {
  db.query('SELECT * FROM Posts', (error, results) => {
    if (error) {
        console.error('Lỗi truy vấn:', error);
@@ -52,9 +52,21 @@ app.post('/api/image-upload', upload.single('image'),(req, res) => {
 });
 
 app.post('/Posts', (req, res) => {
-    const sqlInsert = 'INSERT INTO posts (idUser, title, content, category, avatar) VALUES (?, ?, ?, ?, ?)';
-    const { idUser, idCategory, title, content, image } = req.body;
-    res.json({ message: 'Đăng bài thành công' });
+    const { IDUser, IDCategory, title, content, image } = req.body;
+    console.log("Data nhan tu client: " + IDUser, IDCategory, title, content, image)
+    const sqlInsert = 'INSERT INTO posts (IDUser, IDCategory, title, content,  image) VALUES (?, ?, ?, ?, ?)';
+    const values = [IDUser,IDCategory, title, content, image];
+
+    db.query(sqlInsert, values, (error, results) => {
+        if (error) {
+          console.error('Lỗi thêm bài viết:', error);
+          res.status(500).json({ error: 'Lỗi thêm bài viết' });
+          return;
+        }
+        console.log('Bài viết đã được thêm thành công');
+        res.json({ message: 'Bài viết đã được thêm thành công', results });
+      });
+  
   });
 
 app.listen(port, () => {
