@@ -151,9 +151,17 @@ giảm thời gian điều trị so với thuốc đông y truyền thống.', '
 (3, 3, 1, 'Đại học quốc gia TP HCM ký hợp tác với tỉnh Hậu Giang nhằm đẩy mạnh hoạt động khoa học công nghệ, đổi mới sáng tạo,
  trong đó chú trọng đào tạo nhân lực.', '2023/07/20', 3 );
 
+create table HistorySearchs (
+	IDSearch int not null auto_increment primary key,
+    IDUser int not null,
+    keyWord varchar (100),
+    dateTime varchar(100),
+    foreign key (IDUser) references Users(IDUser)
+)
 
 select * from Posts;
 select * from Category;
 select * from Status;
+select * from HistorySearchs;
 
 DELETE FROM Posts WHERE IDPosts > 0;
