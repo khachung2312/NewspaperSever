@@ -2,7 +2,7 @@ const express =  require('express');
 const app = express();
 const port = 3000;
 const db = require('./connect');
-const nodemailer = require('nodemailer');
+//const nodemailer = require('nodemailer');
 var bodyParser = require('body-parser');
 
 var md5 = require('md5');
@@ -27,22 +27,49 @@ app.post('/accounts/login', (req, res) => {
 });
 
 app.post('/accounts/register', (req, res) => {
-    const { email, password_of_user } = req.body;
+  const { email, password_of_user, full_name, date_of_birth } = req.body;
 
-    const account = { email, password_of_user };
+  const account = {
+      email: email,
+      password_of_user: password_of_user,
+      status_account: null 
+  };
 
-    db.query('INSERT INTO Accounts SET ?', account, (error, results) => {
-        if (error) {
-            console.error('Lỗi truy vấn:', error);
-            res.status(500).send('Lỗi server');
-            console.log(email);
-        } else {
-            const insertedUserId = results.insertId;
-            res.json({ IDUser: insertedUserId });
-            console.log("Đăng kí tài khoản thành công");
-        }
-    });
+  db.query('INSERT INTO Accounts SET ?', account, (error, accountResult) => {
+      if (error) {
+          console.error('Lỗi truy vấn Accounts:', error);
+          res.status(500).send('Lỗi server');
+      } else {
+          const accountID = accountResult.insertId; 
+
+          const user = {
+              email: email,
+              full_name: full_name,
+              date_of_birth: date_of_birth,
+              IDUser: accountID 
+          };
+          db.query('INSERT INTO Users SET ?', user, (error, userResult) => {
+              if (error) {
+                  console.error('Lỗi truy vấn Users:', error);
+                  res.status(500).send('Lỗi server');
+              } else {
+                  const insertedUserId = userResult.insertId;
+                  res.json({ IDUser: insertedUserId });
+
+                  db.query('UPDATE Accounts SET IDUser = ? WHERE account_id = ?', [accountID, accountID], (updateError) => {
+                    if (updateError) {
+                      console.error('Lỗi cập nhật IDUser trong bảng Accounts:', updateError);
+                      return;
+                    }
+                  });     
+                  console.log("Đăng ký tài khoản và tạo user thành công");
+              }
+          });
+      }
+  });
 });
+
+
 
 // app.put('/accounts/changePassword', (req, res) => {
 
@@ -70,23 +97,23 @@ app.post('/accounts/register', (req, res) => {
 //     });
 // });
 
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'linhmanhng@gmail.com',
-      pass: 'aB011602'
-    }
-});
+// const transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     auth: {
+//       user: 'linhmanhng@gmail.com',
+//       pass: 'aB011602'
+//     }
+// });
 
-function generateRandomPassword() {
-    const length = 10;
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let newPassword = '';
-    for (let i = 0; i < length; i++) {
-      newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return newPassword;
-  }
+// function generateRandomPassword() {
+//     const length = 10;
+//     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//     let newPassword = '';
+//     for (let i = 0; i < length; i++) {
+//       newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
+//     }
+//     return newPassword;
+//   }
 
 app.post('/accounts/forgotPassword', (req, res) => {
     const { email } = req.body;
@@ -125,3 +152,5 @@ app.get('/accounts', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })
+
+
