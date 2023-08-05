@@ -1,9 +1,10 @@
 create database Newspaper;
 use Newspaper;
 
+DROP database Newspaper;
 
 CREATE TABLE Users (
-  IDUser INT AUTO_INCREMENT PRIMARY KEY,
+  IDUser INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   email CHAR(100),
   full_name CHAR(100),
   date_of_birth DATE
@@ -61,26 +62,35 @@ VALUES
 ('vnexpress@gmail.com', 'EXPRESS VN'),
   ('linhnm@gmail.com', 'Nguyen Manh Linh'),
   ('hungnk@gmail.com', 'Nguyen Khac Hung'),
-  ('minhvd@gmail.com', 'Vu Dinh Minh'),
+  ('minhvn@gmail.com', 'Vu Ngoc Minh'),
   ('duanvd@gmail.com', 'Vu Dinh Duan'),
   ('phuonggt@gmail.com', 'Giap Thi Phuong'),
   ('linhld@gmail.com', 'Le Dinh Linh'),
   ('hoangdt@gmail.com', 'Dinh Tien Hoang');
+  
+INSERT INTO Users (email, full_name)
+VALUES
+('linhmanhng@gmail.com', 'Nguyen Manh Linh');
 
 INSERT INTO Accounts (email, IDUser, password_of_user, status_account)
 VALUES
-('vnexpress@gmail.com', 1, MD5('VNExpress0000'), 'active'),
-  ('linhnm@gmail.com', 2, MD5('123456'), 'active'),
-  ('hungnk@gmail.com', 3, MD5('123456'), 'active'),
-  ('minhvd@gmail.com', 4, MD5('123456'), 'active'),
-  ('duanvd@gmail.com', 5,MD5('123456'), 'active'),
-  ('phuonggt@gmail.com', 6,MD5('123456'), 'active'),
-  ('linhld@gmail.com', 7, MD5('123456'), 'active'),
-  ('hoangdt@gmail.com', 8, MD5('123456'), 'active');
+('vnexpress@gmail.com', (SELECT IDUser FROM Users WHERE email = 'vnexpress@gmail.com'), MD5('VNExpress0000'), 'active'),
+  ('linhnm@gmail.com', (SELECT IDUser FROM Users WHERE email = 'linhnm@gmail.com'), MD5('123456'), 'active'),
+  ('hungnk@gmail.com', (SELECT IDUser FROM Users WHERE email = 'hungnk@gmail.com'), MD5('123456'), 'active'),
+  ('minhvn@gmail.com', (SELECT IDUser FROM Users WHERE email = 'minhvn@gmail.com'), MD5('123456'), 'active'),
+  ('duanvd@gmail.com', (SELECT IDUser FROM Users WHERE email = 'duanvd@gmail.com'), MD5('123456'), 'active'),
+  ('phuonggt@gmail.com', (SELECT IDUser FROM Users WHERE email = 'phuonggt@gmail.com'),MD5('123456'), 'active'),
+  ('linhld@gmail.com', (SELECT IDUser FROM Users WHERE email = 'linhld@gmail.com'), MD5('123456'), 'active'),
+  ('hoangdt@gmail.com', (SELECT IDUser FROM Users WHERE email = 'hoangdt@gmail.com'), MD5('123456'), 'active');
+  
+INSERT INTO Accounts (email, IDUser, password_of_user, status_account)
+VALUES
+('linhmanhng@gmail.com', (SELECT IDUser FROM Users WHERE email = 'linhmanhng@gmail.com'), MD5('123456'), 'ative');
 
 SELECT *
 FROM Users
 INNER JOIN Accounts ON Users.email = Accounts.email;
+
 
 create table Category (
 IDCategory int primary key,
