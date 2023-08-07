@@ -2,8 +2,10 @@ const express =  require('express');
 const app = express();
 const port = 3000;
 const db = require('./connect');
-//const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 var bodyParser = require('body-parser');
+const passport = require('passport');
+const FacebookTokenStrategy = require('passport-facebook-token');
 
 var md5 = require('md5');
 
@@ -25,6 +27,7 @@ app.post('/accounts/login', (req, res) => {
       }
     });
 });
+
 
 app.post('/accounts/register', (req, res) => {
   const { email, password_of_user, full_name, date_of_birth } = req.body;
@@ -71,57 +74,60 @@ app.post('/accounts/register', (req, res) => {
 
 
 
-// app.put('/accounts/changePassword', (req, res) => {
+app.put('/accounts/changePassword', (req, res) => {
 
-//     const { email, oldPassword, newPassword } = req.body;
-//     console.log(req.body)
-//     console.log(md5(oldPassword))
+    const { email, oldPassword, newPassword } = req.body;
+    console.log(req.body)
+    console.log(md5(oldPassword))
 
-//     db.query('SELECT * FROM Accounts WHERE email = ? AND password_of_user = ?', [email, md5(oldPassword)], (error, results) => {
-//         if (error) {
-//             console.error('Lỗi truy vấn:', error);
-//             res.status(500).send('Lỗi server');
-//         } else if (results.length === 0) {
-//             res.status(401).send('Mật khẩu cũ không chính xác');
-//         } else {
-//             db.query('UPDATE Accounts SET password_of_user = ? WHERE email = ?', [md5(newPassword), email], (error, updateResults) => {
-//                 if (error) {
-//                     console.error('Lỗi truy vấn:', error);
-//                     res.status(500).send('Lỗi server');
-//                 } else {
-//                     res.json({ message: 'Mật khẩu đã được cập nhật thành công' });
-//                     console.log('Cập nhật mật khẩu thành công');
-//                 }
-//             });
-//         }
-//     });
-// });
+    db.query('SELECT * FROM Accounts WHERE email = ? AND password_of_user = ?', [email, md5(oldPassword)], (error, results) => {
+        if (error) {
+            console.error('Lỗi truy vấn:', error);
+            res.status(500).send('Lỗi server');
+        } else if (results.length === 0) {
+            res.status(401).send('Mật khẩu cũ không chính xác');
+        } else {
+            db.query('UPDATE Accounts SET password_of_user = ? WHERE email = ?', [md5(newPassword), email], (error, updateResults) => {
+                if (error) {
+                    console.error('Lỗi truy vấn:', error);
+                    res.status(500).send('Lỗi server');
+                } else {
+                    res.json({ message: 'Mật khẩu đã được cập nhật thành công' });
+                    console.log('Cập nhật mật khẩu thành công');
+                }
+            });
+        }
+    });
+});
 
-// const transporter = nodemailer.createTransport({
-//     service: 'Gmail',
-//     auth: {
-//       user: 'linhmanhng@gmail.com',
-//       pass: 'aB011602'
-//     }
-// });
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, 
+  auth: {
+    user: 'dinhhoang4012k1@gmail.com',
+    pass: 'oaxnrbdzmxfrhykn',
+  }
+});
 
-// function generateRandomPassword() {
-//     const length = 10;
-//     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//     let newPassword = '';
-//     for (let i = 0; i < length; i++) {
-//       newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
-//     }
-//     return newPassword;
-//   }
+function randomPassword() {
+    const length = 10;
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let newPassword = '';
+    for (let i = 0; i < length; i++) {
+      newPassword += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return newPassword;
+  }
 
 app.post('/accounts/forgotPassword', (req, res) => {
     const { email } = req.body;
-  
-    const newPassword = generateRandomPassword();
+    console.log(email);
+
+    const newPassword = randomPassword();
   
     const mailOptions = {
-      from: 'linhmanhng@gmail.com',
+      from: "dinhhoang4012k1@gmail.com",
       to: email,
       subject: 'Thông báo mật khẩu mới',
       text: `Mật khẩu mới của bạn là: ${newPassword}`
@@ -131,8 +137,17 @@ app.post('/accounts/forgotPassword', (req, res) => {
       if (error) {
         console.error('Lỗi khi gửi email:', error);
         res.status(500).send('Lỗi server');
+        console.log(email);
+        console.log(newPassword);
       } else {
-        res.json({ message: 'Email đã được gửi thành công, vui lòng kiểm tra hộp thư đến của bạn.' });
+        db.query('UPDATE Accounts SET password_of_user = ? WHERE email = ?', [newPassword, email], (updateError, updateResults) => {
+          if (updateError) {
+            console.error('Lỗi khi cập nhật mật khẩu:', updateError);
+            res.status(500).send('Lỗi server khi cập nhật mật khẩu');
+          } else {
+            res.json({ message: 'Email đã được gửi thành công, vui lòng kiểm tra hộp thư đến của bạn.' });
+          }
+        });
       }
     });
 });
